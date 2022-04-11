@@ -1,0 +1,143 @@
+version: '3.2'
+services:
+  ssh:   
+    build: ./archivos/ssh
+    image: ssh_server:20210512    
+    stdin_open: true
+    restart: always
+    env_file: env_file
+    command: ["/bin/ash","/home/usuario/crearrsa.sh"]
+    profiles:
+      - build
+    volumes:        
+        - ./archivos/ssh/config/known_hosts:/home/usuario/.ssh/known_hosts
+        - ./archivos/ssh/config/id_rsa.cliente:/home/usuario/.ssh/id_rsa.cliente
+        - ./archivos/ssh/config/id_rsa.cliente.pub:/home/usuario/.ssh/id_rsa.cliente.pub
+        - ./archivos/ssh/config/authorized_keys:/home/usuario/.ssh/authorized_keys
+        - ./archivos/ssh/crearrsa.sh:/home/usuario/crearrsa.sh        
+        - ./archivos/devweb/src/semb_frontend/build:/home/usuario/web/semb_frontend/build
+  ssh_rsa:   
+    build: ./archivos/ssh_rsa
+    image: ssh_rsa:20210512    
+    stdin_open: true
+    env_file: env_file
+    command: ["/bin/ash","/home/usuario/crearrsa2.sh"]
+    profiles:
+      - build
+    volumes:                
+        - ./archivos/ssh/config/known_hosts:/home/usuario/.ssh/known_hosts
+        - ./archivos/ssh/config/authorized_keys:/home/usuario/.ssh/authorized_keys
+        - ./archivos/ssh/config/id_rsa.cliente:/home/usuario/.ssh/id_rsa.cliente
+        - ./archivos/ssh/config/id_rsa.cliente.pub:/home/usuario/.ssh/id_rsa.cliente.pub
+        - ./archivos/ssh_rsa/crearrsa2.sh:/home/usuario/crearrsa2.sh
+        - ./archivos/devweb/src/semb_frontend/build:/home/usuario/web/semb_frontend/build 
+    depends_on:
+     - "ssh"
+
+  react:
+    build: ./archivos/devweb
+    image: devweb:20210512
+    profiles:
+      - dev
+      - build
+      - src
+
+
+  dev:
+    image: devweb:20210512
+    working_dir: /home/usuario/web/semb_frontend
+    restart: always
+
+    volumes:
+      - ./archivos/devweb/src/semb_frontend:/home/usuario/web/semb_frontend      
+      - ./archivos/devweb/startdevweb.sh:/usr/src/s/startdevweb.sh
+      
+    stdin_open: true
+    environment:
+      - DEV=1
+    command: ["/bin/sh","/usr/src/s/startdevweb.sh"]
+    profiles:
+      - dev
+      - src
+      
+       
+    depends_on:
+      - "react"
+  web:
+    image: devweb:20210512
+    working_dir: /home/usuario/web/semb_frontend
+    restart: always
+    
+    volumes:
+      - ./archivos/devweb/src/semb_frontend:/home/usuario/web/semb_frontend
+      - ./archivos/devweb/startdevweb.sh:/usr/src/s/startdevweb.sh
+  
+    stdin_open: true
+    command: ["/bin/sh","/usr/src/s/startdevweb.sh"]
+    profiles:
+      - build
+    environment:
+      - BUILD=1    
+    depends_on:
+      - "react"
+
+  postgres:
+    build: ./archivos/pg/
+    image: postgres:13.3-alpine
+    restart: always
+    volumes:
+      - ./archivos/_data:/var/lib/postgresql/data      
+      - ./archivos/pg/restaurar:/usr/config_pg
+
+
+    environment:
+      AR: 20211013160931_id_plantel_20211014_estable.bak
+      TZ: 'America/Mexico_City'
+    profiles:
+      - dev
+      - build
+      - db
+
+
+  graphql-engine:
+    image: hasura/graphql-engine:v1.0.0-beta.6
+    
+    depends_on:
+    - "postgres"
+    
+    restart: always
+    environment:
+
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true" 
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
+      HASURA_GRAPHQL_ENABLE_TELEMETRY: "false"
+
+    profiles:
+      - dev
+      - build
+      - db 
+      
+  knex:
+    build:
+      ./archivos/knex
+    image: knex:20211013
+    depends_on:
+      - "postgres"   
+      - "graphql-engine"         
+    restart: on-failure
+
+    command: ["/bin/sh", "/knex/config/init.sh"]
+    volumes:
+      - type: bind
+        source: ./archivos/knex/config
+        target: /knex/config
+        read_only: true
+    profiles:
+      - dev
+      - build 
+      - db
+  
+      
+
+
+

@@ -1,0 +1,2 @@
++20211013 Se modificó el script docker para se incluya el package.json de knex
++20211013 Se agregò a script el reinicio de contenedores para establecer permisos archivos/_data

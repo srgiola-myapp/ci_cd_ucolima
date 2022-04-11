@@ -1,0 +1,10 @@
+/archivos/_data
+/archivos/devweb/logs_dev
+/archivos/devweb/logs_web
+*.backup*
+/archivos/pgadmin/certs
+/archivos/pgadmin/data/**
+/archivos/devweb/src/build/**
+/archivos/devweb/src/start.sh
+/archivos/devweb/stc/startdevweb.sh
+.env

@@ -1,0 +1,1 @@
+{"functions":[],"remote_schemas":[],"query_collections":[],"allowlist":[],"tables":[{"table":"test","is_enum":false,"object_relationships":[],"array_relationships":[],"insert_permissions":[],"select_permissions":[],"update_permissions":[],"delete_permissions":[],"event_triggers":[]}]}

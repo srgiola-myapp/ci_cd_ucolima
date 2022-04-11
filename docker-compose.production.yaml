@@ -1,0 +1,45 @@
+version: '3.2'
+services:
+  ssh:
+    environment:
+      USERPASS: '987#.123'
+    ports:
+       - "60000:22"
+  
+
+  react:
+   
+
+  dev:
+    ports:
+      - "60007:6000"
+  web:
+    ports:
+      - "60002:6000"
+
+  postgres:
+    environment:
+      POSTGRES_PASSWORD: 'yt$ut'
+      POSTGRES_DB: 'testing'
+      US: 'postgres'           
+      PR: 60003
+      DIR: "${SERVER_LOCAL}"
+      
+    ports:
+      - "60003:5432"
+  graphql-engine:
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:yt$ut@postgres:5432/testing
+    ports:
+      - "60004:8080"
+  knex:
+    environment:
+      POSTGRES_PASSWORD: yt$ut
+      POSTGRES_DB: siabuc10
+      US: postgres           
+      PR: 60003
+
+  
+      
+
+

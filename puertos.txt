@@ -1,0 +1,4 @@
+SSh pass 987#.123
+puertos rangos 30000 -> 60000
+postgres passwd 1.1V3r510n  -> yt$ut
+pgdadmin passwd S148UC._G#f ->   khg%jv
